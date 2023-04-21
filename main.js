@@ -15,6 +15,8 @@ let nodes = [];
 let overlaps = [];
 let length;
 let density = 1;
+let temp_arry = [];
+let temp = 0;
 
 let update_f = true;
 let node = 0;
@@ -74,7 +76,7 @@ function setup() {
 
     .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
-    .addRange('Node Amount', 100, 255, 200, 5, update_h)
+    .addRange('Node Amount', 240, 240, 240, 5, update_h)
     .addRange('Max Lines', 0, 5000, 1500, 50, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
     .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
@@ -131,7 +133,7 @@ function draw() {
 function tracer() {
   setStatus("Running. Lines: " + count);
 
-  let ui_amount = ui_get("Node Amount");
+  let ui_amount = ui_get('Node Amount');//ноды
   let ui_offset = ui_get("Offset");
   let ui_quarter = ui_get("Quarter");
   let ui_overlaps = ui_get("Overlaps");
@@ -181,15 +183,25 @@ function tracer() {
       running = false;
       count--;
       setStatus("Done! " + count + " lines, " + Math.round(length / 100) + " m, max overlap " + Math.max(...overlaps) + ' in ' + ((Date.now() - tmr) / 1000).toFixed(1) + ' seconds');
-      ui_set("Nodes", nodes);
+      ui_set("Nodes", temp_arry);
       nodes.push(ui_amount & 0xff);
-
-      ui_set("Nodes B64", btoa(String.fromCharCode.apply(null, new Uint8Array(nodes))));
       nodes.pop();
       return;
     }
 
     nodes.push(best);
+    if (best < 60){
+      temp_arry.push("D"+(60 -best));
+    }
+    else if (best < 120){
+      temp_arry.push("C"+(120 - best));
+    }
+    else if (best < 180){
+      temp_arry.push("B"+(180 - best));
+    }
+    else if (best < 240){
+      temp_arry.push("A"+(240 - best));
+    }
     let xy = [get_xy(0, node), get_xy(0, best)];
     clearLine(xy, ui_clear_w, ui_clear_a);
     updatePixels();
@@ -420,6 +432,8 @@ function update_h() {
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
+  temp_arry = ["A1"]
+  temp = 0
   node = 0;
   count = 1;
   nodes = [0];
@@ -455,11 +469,8 @@ function handleFile(file) {
     });
   }
 }
-function knit() {
+function save() {
   let s = document.location.toString();
-  if (s.indexOf("index.html") > 0) s = s.replace("index.html", "");
-  s += "knitter.html?" + ui_get("Nodes B64");
-  window.open(s, '_blank').focus();
 }
 
 // =============== UTILITY ===============
