@@ -89,7 +89,9 @@ function setup() {
     .addBoolean('Quarter', 0, update_h)
     .addHTML("Control",
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
-      "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;"
+      "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;" +
+      "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" +
+      "<button class='qs_button' onclick='save_fail()'>Save</button>&nbsp;"
     )
     .addHTML("Status", "Stop")
     .addText("Nodes", "")
@@ -469,8 +471,14 @@ function handleFile(file) {
     });
   }
 }
-function save() {
-  let s = document.location.toString();
+function save_fail() {
+  fs.open('testFile.txt', 'w', (err) => {
+        if(err) throw err;
+        console.log('File created');
+    })
+  for ( let i = 0; i < temp_arry.length - 1; i++){
+    fs.appendFile('testFile.txt', temp_arry[i] + "--" + temp_arry[i+1] + "\n")
+  }
 }
 
 // =============== UTILITY ===============
