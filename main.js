@@ -193,16 +193,16 @@ function tracer() {
 
     nodes.push(best);
     if (best < 60){
-      temp_arry.push("B"+(61 -best));
+      temp_arry.push("B"+(60 - (61 -best)));
     }
     else if (best < 120){
-      temp_arry.push("C"+(121 - best));
+      temp_arry.push("C"+(60 - (121 - best)));
     }
     else if (best < 180){
-      temp_arry.push("D"+(181 - best));
+      temp_arry.push("D"+(60 - (181 - best)));
     }
     else if (best < 240){
-      temp_arry.push("A"+(241 - best));
+      temp_arry.push("A"+(60 - (241 - best)));
     }
     let xy = [get_xy(0, node), get_xy(0, best)];
     clearLine(xy, ui_clear_w, ui_clear_a);
@@ -434,7 +434,7 @@ function update_h() {
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
-  temp_arry = ["A1"]
+  temp_arry = ["A60"]
   temp = 0
   node = 0;
   count = 1;
