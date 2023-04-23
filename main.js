@@ -90,7 +90,8 @@ function setup() {
     .addHTML("Control",
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
       "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;" +
-      "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" 
+      "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" +
+      "<button class='qs_button' onclick='save_fail()'>Fail</button>&nbsp;"
     )
     .addHTML("Status", "Stop")
     .addText("Nodes", "")
@@ -192,16 +193,16 @@ function tracer() {
 
     nodes.push(best);
     if (best < 60){
-      temp_arry.push("D"+(60 -best));
+      temp_arry.push("B"+(61 -best));
     }
     else if (best < 120){
-      temp_arry.push("C"+(120 - best));
+      temp_arry.push("C"+(121 - best));
     }
     else if (best < 180){
-      temp_arry.push("B"+(180 - best));
+      temp_arry.push("D"+(181 - best));
     }
     else if (best < 240){
-      temp_arry.push("A"+(240 - best));
+      temp_arry.push("A"+(241 - best));
     }
     let xy = [get_xy(0, node), get_xy(0, best)];
     clearLine(xy, ui_clear_w, ui_clear_a);
@@ -471,12 +472,11 @@ function handleFile(file) {
   }
 }
 function save_fail() {
-  fs.open('testFile.txt', 'w', (err) => {
-        if(err) throw err;
-        console.log('File created');
-    })
+  var p;
+  p = document.getElementById('text_change');
+  p.innerHTML = 'Текст заменили';
   for ( let i = 0; i < temp_arry.length - 1; i++){
-    fs.appendFile('testFile.txt', temp_arry[i] + "--" + temp_arry[i+1] + "\n")
+    p.innerHTML ='testFile.txt', temp_arry[i] + "--" + temp_arry[i+1] + "\n"
   }
 }
 
