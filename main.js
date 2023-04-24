@@ -95,7 +95,7 @@ function setup() {
     )
     .addHTML("Status", "Stop")
     .addText("Nodes", "")
-    .addText("Nodes B64", "")
+    .addText("Nodes Num", "")
     .setWidth(ui_offs - 10)
     .setDraggable(false)
     .setCollapsible(false);
@@ -187,22 +187,22 @@ function tracer() {
       setStatus("Done! " + count + " lines, " + Math.round(length / 100) + " m, max overlap " + Math.max(...overlaps) + ' in ' + ((Date.now() - tmr) / 1000).toFixed(1) + ' seconds');
       ui_set("Nodes", temp_arry);
       nodes.push(ui_amount & 0xff);
-      ui_set("Nodes B64", nodes)
+      ui_set("Nodes Num", nodes)
       nodes.pop();
       return;
     }
 
     nodes.push(best);
-    if (best < 60){
+    if (best <= 60){
       temp_arry.push("B"+(60 - (60 -best)));
     }
-    else if (best < 120){
+    else if (best <= 120){
       temp_arry.push("C"+(60 - (120 - best)));
     }
-    else if (best < 180){
+    else if (best <= 180){
       temp_arry.push("D"+(60 - (180 - best)));
     }
-    else if (best < 240){
+    else if (best <= 240){
       temp_arry.push("A"+(60 - (240 - best)));
     }
     let xy = [get_xy(0, node), get_xy(0, best)];
@@ -435,7 +435,7 @@ function update_h() {
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
-  temp_arry = ["B0"]
+  temp_arry = ["B1"]
   temp = 0
   node = 0;
   count = 1;
