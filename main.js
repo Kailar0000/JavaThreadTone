@@ -193,17 +193,17 @@ function tracer() {
     }
 
     nodes.push(best);
-    if (best <= 60){
-      temp_arry.push("B"+(60 - (60 -best)));
+    if (best < 60){
+      temp_arry.push("B"+(61 - (60 -best)));
     }
-    else if (best <= 120){
-      temp_arry.push("C"+(60 - (120 - best)));
+    else if (best < 120){
+      temp_arry.push("C"+(61 - (120 - best)));
     }
-    else if (best <= 180){
-      temp_arry.push("D"+(60 - (180 - best)));
+    else if (best < 180){
+      temp_arry.push("D"+(61 - (180 - best)));
     }
-    else if (best <= 240){
-      temp_arry.push("A"+(60 - (240 - best)));
+    else if (best < 240){
+      temp_arry.push("A"+(61 - (240 - best)));
     }
     let xy = [get_xy(0, node), get_xy(0, best)];
     clearLine(xy, ui_clear_w, ui_clear_a);
