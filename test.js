@@ -91,7 +91,7 @@ function setup() {
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
       "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;" +
       "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" +
-      "<button class='qs_button' onclick='save_file()'>File</button>&nbsp;"
+      "<button class='qs_button' onclick='save_fail()'>Fail</button>&nbsp;"
     )
     .addHTML("Status", "Stop")
     .addText("Nodes", "")
@@ -117,6 +117,7 @@ function draw() {
     }
     background(255);
     showImage();
+    showImage2();
     cropImage();
     drawCanvas();
 
@@ -472,12 +473,13 @@ function handleFile(file) {
     });
   }
 }
-function save_file() {
-  let blob = new Blob([temp_arry], {type: "text/plain"});
-  let link = document.createElement("a");
-  link.setAttribute("href", URL.createObjectURL(blob));
-  link.setAttribute("download", "my-text.txt");
-  link.click();
+function save_fail() {
+  var p;
+  p = document.getElementById('text_change');
+  p.innerHTML = 'Текст заменили';
+  for ( let i = 0; i < temp_arry.length - 1; i++){
+    p.innerHTML ='testFile.txt', temp_arry[i] + "--" + temp_arry[i+1] + "\n"
+  }
 }
 
 // =============== UTILITY ===============
