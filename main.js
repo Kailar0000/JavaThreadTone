@@ -27,6 +27,7 @@ let stop_f = false;
 let hold_f = false;
 let radialGranularity = 32;
 let tmr;
+let path = 0
 
 let ui_negative;
 let ui_center;
@@ -189,7 +190,13 @@ function tracer() {
       nodes.push(ui_amount & 0xff);
       ui_set("Nodes Num", nodes)
       nodes.pop();
-      return;
+      if (path<4)
+      {
+        restart()
+      }
+      else{
+        return
+      }
     }
 
     nodes.push(best);
@@ -353,6 +360,7 @@ function cropImage() {
 }
 function showImage() {
   if (img) {
+    let k = 0.2*(path);
     let img_x = cv[0].x + offs_x;
     let img_y = cv[0].y + offs_y;
     let show = createImage(img.width, img.height);
@@ -360,7 +368,7 @@ function showImage() {
     if (show.width < show.height) show.resize(ui_get("Size"), 0);
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
-    b_and_c(show, ui_get("Brightness"), ui_get("Contrast"));
+    b_and_c(show, ui_get("Brightness"), (ui_get("Contrast")+k));
     if (ui_get('Gamma') != 1.0) gamma(show, ui_get('Gamma'));
     
     let edge_i = ui_get('Edges').index;
@@ -619,4 +627,17 @@ function b_and_c(input, bright, cont) {
     input.pixels[i + 2] = b;
   }
   input.updatePixels();
+}
+function restart(){
+  if (path<4){
+    path ++
+    save()
+    save_file()
+    showImage()
+    start()
+  }
+  else
+  {
+    return
+  }
 }
