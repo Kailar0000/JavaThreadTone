@@ -192,9 +192,13 @@ function tracer() {
       nodes.pop();
       if (path<4)
       {
+        save()
+        save_file()
         restart()
       }
       else{
+        save()
+        save_file()
         return
       }
     }
@@ -631,8 +635,6 @@ function b_and_c(input, bright, cont) {
 function restart(){
   if (path<4){
     path ++
-    save()
-    save_file()
     showImage()
     start()
   }
