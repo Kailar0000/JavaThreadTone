@@ -78,7 +78,7 @@ function setup() {
     .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
-    .addRange('Max Lines', 0, 5000, 1500, 20, update_h)
+    .addRange('Max Lines', 0, 4700, 1500, 20, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
     .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
     .addRange('Clear Alpha', 0, 255, 20, 5, update_h)
@@ -195,6 +195,7 @@ function tracer() {
         save()
         save_file()
         restart()
+        return
       }
       else{
         save()
@@ -364,7 +365,8 @@ function cropImage() {
 }
 function showImage() {
   if (img) {
-    let k = 0.2*(path);
+    let k = 0.1*(path);
+    let kb = 0.2*(path);
     let img_x = cv[0].x + offs_x;
     let img_y = cv[0].y + offs_y;
     let show = createImage(img.width, img.height);
@@ -373,7 +375,7 @@ function showImage() {
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
     b_and_c(show, ui_get("Brightness"), (ui_get("Contrast")+k));
-    if (ui_get('Gamma') != 1.0) gamma(show, ui_get('Gamma'));
+    if ((ui_get('Gamma')+kb) != 1.0) gamma(show, (ui_get('Gamma')+kb));
     
     let edge_i = ui_get('Edges').index;
     if (edge_i > 0 && !hold_f) {
@@ -636,7 +638,7 @@ function restart(){
   if (path<4){
     path ++
     showImage()
-    start()
+    setTimeout(start(), 1500)
   }
   else
   {
