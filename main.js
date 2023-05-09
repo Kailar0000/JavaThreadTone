@@ -17,6 +17,8 @@ let length;
 let density = 1;
 let temp_arry = [];
 let temp = 0;
+let path = 0;
+let maxPath = 1;
 
 let update_f = true;
 let node = 0;
@@ -27,7 +29,8 @@ let stop_f = false;
 let hold_f = false;
 let radialGranularity = 32;
 let tmr;
-let path = 0
+let gamma_array =[0.5, 0.9, 1.4, 0.25];
+let contrast_array =[1, 1.2, 1.4, 0.8];
 
 let ui_negative;
 let ui_center;
@@ -51,6 +54,7 @@ function setup() {
     .addHTML('Контраст', '<div style="height:20px"></div>')
     .addHTML('Гамма (средние тона)', '<div style="height:20px"></div>')
     .addHTML('Выделить края', '<div style="height:20px"></div>')
+    .addHTML('Количество попыток', '<div style="height:20px"></div>')
     .addHTML('Диаметр холста, см', '<div style="height:20px"></div>')
     .addHTML('Толщина нитки, мм', '<div style="height:20px"></div>')
     .addHTML('Количество гвоздей', '<div style="height:20px"></div>')
@@ -70,19 +74,20 @@ function setup() {
   ui = QuickSettings.create(0, 0,)
     .addFileChooser("Pick Image", "", "", handleFile)
     .addRange('Size', cv_d - 300, cv_d + 500, cv_d, 1, update_h)
-    .addRange('Brightness', -128, 128, 0, 1, update_h)
+    .addRange('Brightness', -128, -80, -100, 1, update_h)
     .addRange('Contrast', 0, 5.0, 1.0, 0.1, update_h)
     .addRange('Gamma', 0, 2, 0.0, 0.05, update_h)
     .addDropDown('Edges', ['None', 'Simple', 'Sobel 0.2', 'Sobel 0.4', 'Sobel 0.6', 'Sobel 0.8'], update_h)
 
+    .addNumber('Pathe', 1, 4, 1, 3, update_h)
     .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
-    .addRange('Max Lines', 0, 4700, 1500, 20, update_h)
+    .addRange('Max Lines', 0, 4700, 2800, 20, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
     .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
     .addRange('Clear Alpha', 0, 255, 20, 5, update_h)
-    .addRange('Offset', 0, 100, 10, 5, update_h)
+    .addRange('Offset', 0, 100, 20, 5, update_h)
     .addRange('Overlaps', 0, 15, 0, 1, update_h)
     .addBoolean('Radial Granularity', 0, update_h)
     .addBoolean('Negative', 1, update_h)
@@ -190,7 +195,7 @@ function tracer() {
       nodes.push(ui_amount & 0xff);
       ui_set("Nodes Num", nodes)
       nodes.pop();
-      if (path<4)
+      if (path<maxPath)
       {
         save()
         save_file()
@@ -365,8 +370,8 @@ function cropImage() {
 }
 function showImage() {
   if (img) {
-    let k = 0.1*(path);
-    let kb = 0.2*(path);
+    let k = 0.1*(path-1);
+    let n = 0.3*(path-1);
     let img_x = cv[0].x + offs_x;
     let img_y = cv[0].y + offs_y;
     let show = createImage(img.width, img.height);
@@ -375,7 +380,7 @@ function showImage() {
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
     b_and_c(show, ui_get("Brightness"), (ui_get("Contrast")+k));
-    if ((ui_get('Gamma')+kb) != 1.0) gamma(show, (ui_get('Gamma')+kb));
+    if ((ui_get('Gamma')+n) != 1.0) gamma(show, (ui_get('Gamma')+n));
     
     let edge_i = ui_get('Edges').index;
     if (edge_i > 0 && !hold_f) {
@@ -385,6 +390,7 @@ function showImage() {
     copy(show, 0, 0, show.width, show.height, img_x - show.width / 2, img_y - show.width / 2, show.width, show.height);
   }
 }
+
 function drawCanvas() {
   stroke(0);
   strokeWeight(1);
@@ -449,8 +455,10 @@ function update_h() {
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
-  temp_arry = ["B1"]
-  temp = 0
+  maxPath = ui_get('Pathe');
+  path = 1;
+  temp_arry = ["B1"];
+  temp = 0;
   node = 0;
   count = 1;
   nodes = [0];
@@ -635,13 +643,18 @@ function b_and_c(input, bright, cont) {
   input.updatePixels();
 }
 function restart(){
-  if (path<4){
-    path ++
-    showImage()
-    setTimeout(start(), 1500)
-  }
-  else
-  {
-    return
-  }
+    path ++;
+    showImage();
+    temp_arry = ["B1"];
+    temp = 0;
+    node = 0;
+    count = 1;
+    nodes = [0];
+    overlaps = new Array(ui_get("Node Amount")).fill(0);
+    length = 0;
+    update_f = true;
+    running = true;
+    stop_f = false;
+    radialFill = [];
+    tmr = Date.now();
 }
