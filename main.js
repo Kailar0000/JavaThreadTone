@@ -29,8 +29,11 @@ let stop_f = false;
 let hold_f = false;
 let radialGranularity = 32;
 let tmr;
-let gamma_array =[0.5, 0.9, 1.4, 0.25];
-let contrast_array =[1, 1.2, 1.4, 0.8];
+let contrast_array =[0.9, 1, 1, 0.9];
+let edge_arry = [1, 1, 0, 1];
+let clear_arry = [2.5, 2.5, 3.5, 5];
+let negativ_arry = [true, true, false, true];
+let center_arry = [true, false, false, false];
 
 let ui_negative;
 let ui_center;
@@ -74,19 +77,19 @@ function setup() {
   ui = QuickSettings.create(0, 0,)
     .addFileChooser("Pick Image", "", "", handleFile)
     .addRange('Size', cv_d - 300, cv_d + 500, cv_d, 1, update_h)
-    .addRange('Brightness', -128, -80, -100, 1, update_h)
+    .addRange('Brightness', -120, 100, -30, 10, update_h)
     .addRange('Contrast', 0, 5.0, 1.0, 0.1, update_h)
-    .addRange('Gamma', 0, 2, 0.0, 0.05, update_h)
+    .addRange('Gamma', 0, 2, 1, 0.05, update_h)
     .addDropDown('Edges', ['None', 'Simple', 'Sobel 0.2', 'Sobel 0.4', 'Sobel 0.6', 'Sobel 0.8'], update_h)
 
     .addNumber('Pathe', 1, 4, 1, 3, update_h)
     .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
-    .addRange('Max Lines', 0, 4700, 2800, 20, update_h)
+    .addRange('Max Lines', 0, 4700, 4700, 20, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
     .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
-    .addRange('Clear Alpha', 0, 255, 20, 5, update_h)
+    .addRange('Clear Alpha', 0, 255, 7, 1, update_h)
     .addRange('Offset', 0, 100, 20, 5, update_h)
     .addRange('Overlaps', 0, 15, 0, 1, update_h)
     .addBoolean('Radial Granularity', 0, update_h)
@@ -147,7 +150,7 @@ function tracer() {
   let ui_overlaps = ui_get("Overlaps");
   let ui_max = ui_get('Max Lines');
   let ui_clear_a = ui_get('Clear Alpha');
-  let ui_clear_w = ui_get('Clear Width');
+  let ui_clear_w = clear_arry[path];
   let ui_diameter = ui_get("Diameter");
   let ui_thick = ui_get("Thickness");
   let last_max = [1, 1, 1, 1, 1];
@@ -370,8 +373,6 @@ function cropImage() {
 }
 function showImage() {
   if (img) {
-    let k = 0.1*(path-1);
-    let n = 0.3*(path-1);
     let img_x = cv[0].x + offs_x;
     let img_y = cv[0].y + offs_y;
     let show = createImage(img.width, img.height);
@@ -379,10 +380,10 @@ function showImage() {
     if (show.width < show.height) show.resize(ui_get("Size"), 0);
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
-    b_and_c(show, ui_get("Brightness"), (ui_get("Contrast")+k));
-    if ((ui_get('Gamma')+n) != 1.0) gamma(show, (ui_get('Gamma')+n));
+    b_and_c(show, ui_get('Brightness'), contrast_array[path]);
+    if (ui_get('Gamma') != 1.0) gamma(show, ui_get('Gamma'));
     
-    let edge_i = ui_get('Edges').index;
+    let edge_i = edge_arry[path];
     if (edge_i > 0 && !hold_f) {
       if (edge_i == 1) edges(show);
       else sobel_edges(show, edge_i);
@@ -450,13 +451,12 @@ function mouseWheel(event) {
 function update_h() {
   update_f = true;
   running = false;
-  ui_negative = ui_get('Negative');
-  ui_center = ui_get('Center Balance');
+  ui_negative = negativ_arry[path];
+  ui_center = center_arry[path];
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
-  maxPath = ui_get('Pathe');
-  path = 1;
+  maxPath = 3;
   temp_arry = ["B1"];
   temp = 0;
   node = 0;
@@ -484,9 +484,9 @@ function handleFile(file) {
 
       stop_f = true;
       update_h();
-      ui_set('Brightness', 0);
-      ui_set('Edges', 0);
-      ui_set('Contrast', 1);
+      ui_set('Brightness', -30);
+      ui_set('Edges', edge_arry[path]);
+      ui_set('Contrast', contrast_array[path]);
       ui_set('Size', cv_d);
       ui_set('Gamma', 1);
       offs_x = offs_bx = 0;

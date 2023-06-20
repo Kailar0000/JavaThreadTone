@@ -17,6 +17,8 @@ let length;
 let density = 1;
 let temp_arry = [];
 let temp = 0;
+let path = 0;
+let maxPath = 1;
 
 let update_f = true;
 let node = 0;
@@ -27,6 +29,12 @@ let stop_f = false;
 let hold_f = false;
 let radialGranularity = 32;
 let tmr;
+let brigness_arry = [-30, -30, -30, -30]
+let contrast_array =[0.9, 1, 1, 0.9];
+let edge_arry = [1, 1, 0, 1];
+let clear_arry = [2.5, 2.5, 3.5, 5];
+let negativ_arry = [true, true, false, true];
+let center_arry = [true, false, false, false];
 
 let ui_negative;
 let ui_center;
@@ -46,15 +54,12 @@ function setup() {
   help = QuickSettings.create(ui_offs - 10, 0, "Помощь (кликни дважды)")
     .addHTML("Выбор изображения", '<div style="height:30px"></div>')
     .addHTML('Размер изображения', '<div style="height:20px"></div>')
-    .addHTML('Яркость', '<div style="height:20px"></div>')
-    .addHTML('Контраст', '<div style="height:20px"></div>')
-    .addHTML('Гамма (средние тона)', '<div style="height:20px"></div>')
+
     .addHTML('Выделить края', '<div style="height:20px"></div>')
     .addHTML('Диаметр холста, см', '<div style="height:20px"></div>')
     .addHTML('Толщина нитки, мм', '<div style="height:20px"></div>')
     .addHTML('Количество гвоздей', '<div style="height:20px"></div>')
     .addHTML('Максимум линий', '<div style="height:20px"></div>')
-    .addHTML('Ширина очистки', '<div style="height:20px"></div>')
     .addHTML('Прозрачность очистки', '<div style="height:20px"></div>')
     .addHTML('Запрет на угол возврата', '<div style="height:20px"></div>')
     .addHTML('Максимум ниток на гвозде', '<div style="height:20px"></div>')
@@ -69,19 +74,13 @@ function setup() {
   ui = QuickSettings.create(0, 0,)
     .addFileChooser("Pick Image", "", "", handleFile)
     .addRange('Size', cv_d - 300, cv_d + 500, cv_d, 1, update_h)
-    .addRange('Brightness', -128, 128, 0, 1, update_h)
-    .addRange('Contrast', 0, 5.0, 1.0, 0.1, update_h)
-    .addRange('Gamma', 0, 2, 0.0, 0.05, update_h)
-    .addDropDown('Edges', ['None', 'Simple', 'Sobel 0.2', 'Sobel 0.4', 'Sobel 0.6', 'Sobel 0.8'], update_h)
-
     .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
-    .addRange('Max Lines', 0, 5000, 1500, 20, update_h)
+    .addRange('Max Lines', 0, 4700, 4700, 20, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
-    .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
-    .addRange('Clear Alpha', 0, 255, 20, 5, update_h)
-    .addRange('Offset', 0, 100, 10, 5, update_h)
+    .addRange('Clear Alpha', 0, 255, 7, 5, update_h)
+    .addRange('Offset', 0, 100, 20, 5, update_h)
     .addRange('Overlaps', 0, 15, 0, 1, update_h)
     .addBoolean('Radial Granularity', 0, update_h)
     .addBoolean('Negative', 1, update_h)
@@ -91,7 +90,7 @@ function setup() {
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
       "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;" +
       "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" +
-      "<button class='qs_button' onclick='save_fail()'>Fail</button>&nbsp;"
+      "<button class='qs_button' onclick='save_file()'>File</button>&nbsp;"
     )
     .addHTML("Status", "Stop")
     .addText("Nodes", "")
@@ -117,7 +116,6 @@ function draw() {
     }
     background(255);
     showImage();
-    showImage2();
     cropImage();
     drawCanvas();
 
@@ -142,7 +140,7 @@ function tracer() {
   let ui_overlaps = ui_get("Overlaps");
   let ui_max = ui_get('Max Lines');
   let ui_clear_a = ui_get('Clear Alpha');
-  let ui_clear_w = ui_get('Clear Width');
+  let ui_clear_w = clear_arry[path];
   let ui_diameter = ui_get("Diameter");
   let ui_thick = ui_get("Thickness");
   let last_max = [1, 1, 1, 1, 1];
@@ -190,7 +188,18 @@ function tracer() {
       nodes.push(ui_amount & 0xff);
       ui_set("Nodes Num", nodes)
       nodes.pop();
-      return;
+      if (path<maxPath)
+      {
+        save()
+        save_file()
+        restart()
+        return
+      }
+      else{
+        save()
+        save_file()
+        return
+      }
     }
 
     nodes.push(best);
@@ -361,10 +370,10 @@ function showImage() {
     if (show.width < show.height) show.resize(ui_get("Size"), 0);
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
-    b_and_c(show, ui_get("Brightness"), ui_get("Contrast"));
+    b_and_c(show, brigness_arry[path-1], (contrast_array[path-1]));
     if (ui_get('Gamma') != 1.0) gamma(show, ui_get('Gamma'));
     
-    let edge_i = ui_get('Edges').index;
+    let edge_i = edge_arry[path];
     if (edge_i > 0 && !hold_f) {
       if (edge_i == 1) edges(show);
       else sobel_edges(show, edge_i);
@@ -372,6 +381,7 @@ function showImage() {
     copy(show, 0, 0, show.width, show.height, img_x - show.width / 2, img_y - show.width / 2, show.width, show.height);
   }
 }
+
 function drawCanvas() {
   stroke(0);
   strokeWeight(1);
@@ -431,13 +441,15 @@ function mouseWheel(event) {
 function update_h() {
   update_f = true;
   running = false;
-  ui_negative = ui_get('Negative');
-  ui_center = ui_get('Center Balance');
+  ui_negative = negativ_arry[path];
+  ui_center = center_arry[path];
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
-  temp_arry = ["B1"]
-  temp = 0
+  maxPath = 3;
+  path = 1;
+  temp_arry = ["B1"];
+  temp = 0;
   node = 0;
   count = 1;
   nodes = [0];
@@ -463,9 +475,10 @@ function handleFile(file) {
 
       stop_f = true;
       update_h();
+      let c = contrast_array[path];
       ui_set('Brightness', 0);
       ui_set('Edges', 0);
-      ui_set('Contrast', 1);
+      ui_set('Contrast', c);
       ui_set('Size', cv_d);
       ui_set('Gamma', 1);
       offs_x = offs_bx = 0;
@@ -473,13 +486,12 @@ function handleFile(file) {
     });
   }
 }
-function save_fail() {
-  var p;
-  p = document.getElementById('text_change');
-  p.innerHTML = 'Текст заменили';
-  for ( let i = 0; i < temp_arry.length - 1; i++){
-    p.innerHTML ='testFile.txt', temp_arry[i] + "--" + temp_arry[i+1] + "\n"
-  }
+function save_file() {
+  let blob = new Blob([temp_arry], {type: "text/plain"});
+  let link = document.createElement("a");
+  link.setAttribute("href", URL.createObjectURL(blob));
+  link.setAttribute("download", "my-text.txt");
+  link.click();
 }
 
 // =============== UTILITY ===============
@@ -621,4 +633,20 @@ function b_and_c(input, bright, cont) {
     input.pixels[i + 2] = b;
   }
   input.updatePixels();
+}
+function restart(){
+    path ++;
+    showImage();
+    temp_arry = ["B1"];
+    temp = 0;
+    node = 0;
+    count = 1;
+    nodes = [0];
+    overlaps = new Array(ui_get("Node Amount")).fill(0);
+    length = 0;
+    update_f = true;
+    running = true;
+    stop_f = false;
+    radialFill = [];
+    tmr = Date.now();
 }
