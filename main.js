@@ -32,8 +32,8 @@ let tmr;
 let contrast_array =[0.9, 1, 1, 0.9];
 let edge_arry = [1, 1, 0, 1];
 let clear_arry = [2.5, 2.5, 3.5, 5];
-let negativ_arry = [true, true, false, true];
-let center_arry = [true, false, false, false];
+let negativ_arry = [1, 1, 0, 1];
+let center_arry = [1, 0, 0, 0];
 
 let ui_negative;
 let ui_center;
@@ -88,13 +88,13 @@ function setup() {
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
     .addRange('Max Lines', 0, 4700, 4700, 20, update_h)
     .addRange('Threshold', 0, 2000, 0, 0, update_h)
-    .addRange('Clear Width', 1.0, 5, 3, 0.5, update_h)
+    .addRange('Clear Width', 1.0, 5, 2.5, 0.5, update_h)
     .addRange('Clear Alpha', 0, 255, 7, 1, update_h)
     .addRange('Offset', 0, 100, 20, 5, update_h)
     .addRange('Overlaps', 0, 15, 0, 1, update_h)
     .addBoolean('Radial Granularity', 0, update_h)
     .addBoolean('Negative', 1, update_h)
-    .addBoolean('Center Balance', 0, update_h)
+    .addBoolean('Center Balance', 1, update_h)
     .addBoolean('Quarter', 0, update_h)
     .addHTML("Control",
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
@@ -150,7 +150,7 @@ function tracer() {
   let ui_overlaps = ui_get("Overlaps");
   let ui_max = ui_get('Max Lines');
   let ui_clear_a = ui_get('Clear Alpha');
-  let ui_clear_w = clear_arry[path];
+  let ui_clear_w = ui_get('Clear Width');
   let ui_diameter = ui_get("Diameter");
   let ui_thick = ui_get("Thickness");
   let last_max = [1, 1, 1, 1, 1];
@@ -380,7 +380,7 @@ function showImage() {
     if (show.width < show.height) show.resize(ui_get("Size"), 0);
     else show.resize(0, ui_get("Size"));
     show.filter(GRAY);
-    b_and_c(show, ui_get('Brightness'), contrast_array[path]);
+    b_and_c(show, ui_get('Brightness'), ui_get('Contrast'));
     if (ui_get('Gamma') != 1.0) gamma(show, ui_get('Gamma'));
     
     let edge_i = edge_arry[path];
@@ -451,8 +451,8 @@ function mouseWheel(event) {
 function update_h() {
   update_f = true;
   running = false;
-  ui_negative = negativ_arry[path];
-  ui_center = center_arry[path];
+  ui_negative = ui_get('Negative');
+  ui_center = ui_get('Center Balance');
   ui_radial = ui_get('Radial Granularity');
 }
 function start() {
@@ -644,6 +644,13 @@ function b_and_c(input, bright, cont) {
 }
 function restart(){
     path ++;
+    ui_set('Negative', negativ_arry[path])
+    ui_set('Center Balance', center_arry[path])
+    update_h();
+    ui_set('Brightness', -30);
+    ui_set('Edges', edge_arry[path]);
+    ui_set('Contrast', contrast_array[path]);
+    ui_set('Clear Width', clear_arry[path])
     showImage();
     temp_arry = ["B1"];
     temp = 0;
