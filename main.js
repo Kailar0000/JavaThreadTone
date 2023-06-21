@@ -140,6 +140,13 @@ function draw() {
   if (hold_f) cursor('grab');
 }
 
+function start_setings() {
+  ui_set('Negative', negativ_arry[path]);
+  ui_set('Center Balance', center_arry[path]);
+  ui_set('Clear Width', clear_arry[path]);
+  ui_set('Edges', edge_arry[path]);
+  ui_set('Contrast', contrast_array[path]);
+}
 // =============== TRACER ===============
 function tracer() {
   setStatus("Running. Lines: " + count);
@@ -196,18 +203,20 @@ function tracer() {
       setStatus("Done! " + count + " lines, " + Math.round(length / 100) + " m, max overlap " + Math.max(...overlaps) + ' in ' + ((Date.now() - tmr) / 1000).toFixed(1) + ' seconds');
       ui_set("Nodes", temp_arry);
       nodes.push(ui_amount & 0xff);
-      ui_set("Nodes Num", nodes)
+      ui_set("Nodes Num", nodes);
       nodes.pop();
       if (path<maxPath)
       {
-        save()
-        save_file()
-        restart()
+        save();
+        save_file();
+        restart();
         return
       }
       else{
-        save()
-        save_file()
+        path = 0;
+        save();
+        save_file();
+        start_setings();
         return
       }
     }
