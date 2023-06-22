@@ -83,7 +83,7 @@ function setup() {
     .addDropDown('Edges', ['None', 'Simple', 'Sobel 0.2', 'Sobel 0.4', 'Sobel 0.6', 'Sobel 0.8'], update_h)
 
     .addNumber('Pathe', 1, 4, 1, 3, update_h)
-    .addNumber('Diameter', 10, 100, 30, 0.1, update_h)
+    .addNumber('Diameter', 10, 100, 48, 0.1, update_h)
     .addRange('Thickness', 0.1, 1.0, 0.5, 0.1, update_h)
     .addRange('Node Amount', 240, 240, 240, 5, update_h)
     .addRange('Max Lines', 0, 4700, 4700, 20, update_h)
