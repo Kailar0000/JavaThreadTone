@@ -98,7 +98,6 @@ function setup() {
     .addBoolean('Quarter', 0, update_h)
     .addHTML("Control",
       "<button class='qs_button' onclick='start()'>Start</button>&nbsp;" +
-      "<button class='qs_button' onclick='stop()'>Stop</button>&nbsp;" +
       "<button class='qs_button' onclick='save()'>Save</button>&nbsp;" +
       "<button class='qs_button' onclick='save_file()'>File</button>&nbsp;"
     )
